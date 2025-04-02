@@ -12,7 +12,8 @@ import io
 from io import BytesIO 
 import base64
 from PIL import Image
-import pdf2image
+# import pdf2image
+import fitz
 import google.generativeai as genai
 
 
@@ -28,14 +29,20 @@ def get_gemini_response(input,pdf_content,prompt):
 
 def input_pdf_setup(uploaded_file):
     if uploaded_file is not None:
-    ## Convert PDF to images
-        images = pdf2image.convert_from_bytes(uploaded_file.read())
+    # Convert PDF to images
+        ## images = pdf2image.convert_from_bytes(uploaded_file.read())
 
-        first_page=images[0]
+        ## first_page=images[0]
+        pdf_document = fitz.open(stream=uploaded_file.read(), filetype="pdf")
+        first_page = pdf_document.load_page(0)
+        pix = first_page.get_pixmap()
+
+        img = Image.frombytes("RGB", [pix.width,pix.height], pix.samples)
 
         #convert to bytes
         img_byte_arr = BytesIO()
-        first_page.save(img_byte_arr, format='JPEG')
+        # first_page.save(img_byte_arr, format='JPEG')
+        img.save(img_byte_arr, format='JPEG')
         img_byte_arr.seek(0)
         img_byte_arr = img_byte_arr.getvalue()
 
