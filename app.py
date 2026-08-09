@@ -13,8 +13,9 @@ from io import BytesIO
 import base64
 from PIL import Image
 # import pdf2image
-import fitz
-import google.generativeai as genai
+import pymupdf as fitz
+from google import genai
+from google.genai import types
 import re
 
 
@@ -23,7 +24,7 @@ st.set_page_config(page_title="ATS Resume Expert", page_icon="📄", layout="wid
 
 
 
-genai.configure(api_key=os.getenv("GOOGLE_API_KEY"))
+client = genai.Client(api_key=os.getenv("GOOGLE_API_KEY"))
 
 # =================== Custom CSS Styling ===================
 st.markdown("""
@@ -107,8 +108,10 @@ st.sidebar.info("Built  using Streamlit, Google Gemini Pro, and Python!")
 # =================== Helper Functions ===================
 
 def get_gemini_response(input,pdf_content,prompt):
-    model=genai.GenerativeModel('gemini-2.0-flash')
-    response=model.generate_content([input,pdf_content[0],prompt])
+    response = client.models.generate_content(
+        model='gemini-2.0-flash',
+        contents=[input, pdf_content[0], prompt]
+    )
     return response.text
 
 
@@ -187,12 +190,10 @@ def input_pdf_setup(uploaded_file):
         img_byte_arr = img_byte_arr.getvalue()
 
         pdf_parts = [
-            {
-                "mime_type": "image/jpeg",
-                "data": base64.b64encode(img_byte_arr).decode() #encode to base64
-
-            }
-
+            types.Part.from_bytes(
+                data=img_byte_arr,
+                mime_type='image/jpeg'
+            )
         ]
         return pdf_parts
     else:
