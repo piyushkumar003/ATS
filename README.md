@@ -33,29 +33,40 @@ An AI-powered Applicant Tracking System (ATS) Resume Expert built with **Streaml
 ```bash
 git clone [https://github.com/yourusername/ats-resume-expert.git](https://github.com/yourusername/ats-resume-expert.git)
 cd ats-resume-expert
+```
 
 
 
 2. Set Up a Virtual Environment
 # Windows
+```
 python -m venv venv
 venv\Scripts\activate
+```
 
 # macOS/Linux
+```
 python3 -m venv venv
 source venv/bin/activate
+```
 
 3. Install Dependencies
 Install the required packages directly:
+```
 pip install streamlit groq pymupdf Pillow python-dotenv
+```
 
-4. Environment Variables Configuration
+5. Environment Variables Configuration
 Create a .env file in the root directory and add your Groq API Key:
+```
 GROQ_API_KEY=your_groq_api_key_here
+```
 
 💻 Running the Application
 Launch the Streamlit web application:
+```
 streamlit run app.py
+```
 Upload Resume: Drag and drop or browse your PDF resume.
 
 Enter JD: Paste the job description into the text area.
