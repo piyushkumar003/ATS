@@ -118,50 +118,45 @@ def get_enhanced_ats_score(resume_text):
     max_score = 100
     breakdown = {}
 
-    # 1. Section Coverage
+    # 1. Section Coverage (Max: 20)
     sections = ["experience", "education", "skills", "projects", "summary", "certifications"]
     found_sections = [s for s in sections if s in resume_text.lower()]
-    section_score = (len(found_sections) / len(sections)) * 15
+    section_score = min((len(found_sections) / 4) * 20, 20) # 4 sections is enough for full marks
     breakdown['Sections'] = round(section_score, 2)
 
-    # 2. Tech Keywords
+    # 2. Tech Keywords (Max: 20)
     tech_keywords = [
         "python", "java", "sql", "machine learning", "data science", "aws", "docker",
-        "react", "git", "linux", "pandas", "kubernetes"
+        "react", "git", "linux", "pandas", "kubernetes", "c++", "c", "javascript", "html", "css", "api"
     ]
     found_keywords = [kw for kw in tech_keywords if kw in resume_text.lower()]
-    keyword_score = (len(found_keywords) / len(tech_keywords)) * 15
+    keyword_score = min((len(found_keywords) / 5) * 20, 20) # 5 keywords is enough for full marks
     breakdown['Tech Keywords'] = round(keyword_score, 2)
 
-    # 3. Formatting
-    format_score = 0
+    # 3. Formatting (Max: 15)
+    format_score = 5 # Base formatting score
     if "@" in resume_text: format_score += 5
     if re.search(r'\b\d{10}\b', resume_text): format_score += 5
-    if "-" in resume_text or "•" in resume_text: format_score += 5
     breakdown['Formatting'] = format_score
 
-    # 4. Grammar & Writing Quality
-    # matches = tool.check(resume_text)
-    # num_errors = len(matches)
-    # grammar_score = max(0, 15 - num_errors)
-    # Simple heuristic: count likely grammar issues using bad punctuation patterns (not a full check)
-    grammar_penalties = len(re.findall(r"\s{2,}|[^.]\n", resume_text))  # double spaces, missing punctuation
-    grammar_score = max(0, 15 - grammar_penalties)
+    # 4. Grammar & Writing Quality (Max: 15)
+    # PDF extraction usually creates weird newlines, so we give a generous base score.
+    grammar_score = 15 
     breakdown['Grammar'] = round(grammar_score, 2)
 
-    # 5. Stats & Numbers
+    # 5. Stats & Numbers (Max: 10)
     numbers_found = re.findall(r"\b\d+(\.\d+)?%?\b", resume_text)
     number_score = min(len(numbers_found) * 2, 10)  # cap at 10
     breakdown['Metrics/Numbers'] = round(number_score, 2)
 
-    # 6. Action Verbs
-    action_verbs = ["managed", "led", "built", "developed", "created", "increased", "analyzed", "designed"]
+    # 6. Action Verbs (Max: 10)
+    action_verbs = ["managed", "led", "built", "developed", "created", "increased", "analyzed", "designed", "implemented", "resolved"]
     action_verbs_found = [verb for verb in action_verbs if re.search(r'\b' + verb + r'\b', resume_text.lower())]
     verb_score = min(len(action_verbs_found) * 2, 10)
     breakdown['Action Verbs'] = round(verb_score, 2)
 
-    # 7. Soft Skills
-    soft_skills = ["communication", "teamwork", "leadership", "adaptability", "problem-solving"]
+    # 7. Soft Skills (Max: 10)
+    soft_skills = ["communication", "teamwork", "leadership", "adaptability", "problem-solving", "collaboration", "agile"]
     soft_found = [s for s in soft_skills if s in resume_text.lower()]
     soft_score = min(len(soft_found) * 2, 10)
     breakdown['Soft Skills'] = round(soft_score, 2)
@@ -169,6 +164,7 @@ def get_enhanced_ats_score(resume_text):
     # Total Score
     score = sum(breakdown.values())
     return min(score, max_score), breakdown
+
 
 
 def input_pdf_setup(uploaded_file):
