@@ -37,26 +37,26 @@ cd ats-resume-expert
 
 
 
-2. Set Up a Virtual Environment
-# Windows
+### 2. Set Up a Virtual Environment
+Windows
 ```
 python -m venv venv
 venv\Scripts\activate
 ```
 
-# macOS/Linux
+macOS/Linux
 ```
 python3 -m venv venv
 source venv/bin/activate
 ```
 
-3. Install Dependencies
+### 3. Install Dependencies
 Install the required packages directly:
 ```
 pip install streamlit groq pymupdf Pillow python-dotenv
 ```
 
-5. Environment Variables Configuration
+4. Environment Variables Configuration
 Create a .env file in the root directory and add your Groq API Key:
 ```
 GROQ_API_KEY=your_groq_api_key_here
@@ -73,7 +73,7 @@ Enter JD: Paste the job description into the text area.
 
 Analyze: Click any of the 5 action buttons to generate analysis and scores.
 
-#🔮 Future Enhancements
+# 🔮 Future Enhancements
 
 📄 Multi-page PDF visual analysis support.
 
