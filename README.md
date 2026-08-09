@@ -1,152 +1,113 @@
-This Resume Expert System helps candidates optimize their resumes by analyzing them against a Job Description (JD). It leverages Google Gemini (or another generative AI model) to provide insights, percentage matches, improvement suggestions, and identify missing skills and keywords.
+📄 Smart Resume Analyzer (ATS Resume Expert)
+An AI-powered Applicant Tracking System (ATS) Resume Expert built with Streamlit, Groq AI (qwen/qwen3.6-27b), and PyMuPDF (fitz). This tool helps job seekers optimize their resumes against specific Job Descriptions (JDs) by providing qualitative AI insights, match percentages, skill gap analysis, and a local heuristic ATS score.
 
-Features
-PDF Resume Upload: Upload a resume in PDF format.
+🚀 Features
+📑 PDF Resume Upload: Directly upload resumes in PDF format.
 
-Job Description Input: Provide a job description to match the resume against.
+📝 Job Description Matching: Compare your resume against any job description.
 
-Gemini AI Model: Uses the Google Gemini AI model to analyze and give insights on the resume based on the job description.
+⚡ Groq AI Integration: Powered by qwen/qwen3.6-27b on Groq's high-speed inference engine.
 
-Multiple Evaluation Prompts:
+🔍 5 Evaluation Actions:
 
-Resume Evaluation: Analyze strengths and weaknesses in the resume.
+Tell me About the Resume: Professional HR evaluation highlighting strengths and weaknesses.
 
-Resume Improvement: Suggest improvements for the resume to better align with the job description.
+How could I improve my Resume ATS: Actionable feedback, chronological ordering check, and date consistency checks.
 
-Match Percentage: Calculate the percentage match between the resume and job description.
+Percentage Match with JD: Quantified match score based on qualifications and alignment.
 
-Missing Skills/Keywords: Identify missing skills or keywords in the resume.
+Missing Skills/Keywords: Clear list of critical hard and soft skills absent from the resume.
 
-Requirements
-Python Libraries
-To run this system, you will need the following libraries:
+Check Your ATS Score: Instant local 100-point heuristic breakdown (Sections, Tech Keywords, Action Verbs, Metrics, Formatting, Soft Skills, and Grammar).
 
-streamlit: Web framework to create the interactive app.
+🛠 Tech Stack & Requirements
+Frontend & App Framework: Streamlit
 
-google-generative-ai: To interact with Google's generative AI models.
+LLM Engine: Groq API (qwen/qwen3.6-27b)
 
-pdf2image: For converting PDFs to images.
+PDF & Image Processing: PyMuPDF (fitz), Pillow (PIL)
 
-Pillow: For image processing.
+Environment Management: python-dotenv
 
-python-dotenv: To load environment variables such as API keys.
-
-base64: For encoding image data.
-
-io: For handling byte data.
-
-Installation
-Clone this repository to your local machine:
-
-
+📦 Installation & Setup
+1. Clone the Repository
+Bash
 git clone https://github.com/yourusername/ats-resume-expert.git
 cd ats-resume-expert
-Create a virtual environment and activate it:
-
-
+2. Set Up a Virtual Environment
+Bash
+# Windows
 python -m venv venv
-# On Windows
 venv\Scripts\activate
-# On macOS/Linux
+
+# macOS/Linux
+python3 -m venv venv
 source venv/bin/activate
-Install the required libraries:
+3. Install Dependencies
+Create a requirements.txt file (or install directly):
 
+Bash
+pip install streamlit groq pymupdf Pillow python-dotenv
+4. Environment Variables Configuration
+Create a .env file in the root directory and add your Groq API Key:
 
-pip install -r requirements.txt
-Or manually install dependencies:
+Code snippet
+GROQ_API_KEY=your_groq_api_key_here
+🔑 Get your API Key from the Groq Console.
 
+💻 Running the Application
+Launch the Streamlit web application:
 
-pip install streamlit google-generative-ai pdf2image Pillow python-dotenv
-Create a .env file in the root directory and add your Google Gemini API Key:
-
-
-GOOGLE_API_KEY=your_api_key_here
-
-
-How to Use
-Run the Application:
-
-After setting up the environment, start the Streamlit app with the following command:
-
-
+Bash
 streamlit run app.py
-Upload Resume: Use the file uploader to upload a resume in PDF format.
+Upload Resume: Drag and drop or browse your PDF resume.
 
-Input Job Description: Enter a Job Description (JD) in the text area provided.
+Enter JD: Paste the job description into the text area.
 
-Choose Evaluation Type:
+Analyze: Click any of the 5 action buttons to generate analysis and scores.
 
-Tell me About the Resume: Provides a detailed evaluation of the resume against the JD.
+🧠 Code Architecture & How It Works
+1. Groq LLM Integration & System Prompt Safeguards
+Sends vision payloads (converted page image) and text inputs to qwen/qwen3.6-27b via Groq. Features dynamic real-time date anchors to avoid false "future date" warnings and includes automated regex cleaning to strip internal <think> reasoning tags:
 
-How could I improve my Resume ATS: Suggests improvements to align better with the JD.
+Python
+client = Groq(api_key=os.getenv("GROQ_API_KEY"))
 
-Percentage Match with JD: Provides a percentage match between the resume and JD.
+response = client.chat.completions.create(
+    model='qwen/qwen3.6-27b',
+    messages=messages,
+    max_tokens=4096,
+    temperature=0.6
+)
+# Cleanly strips internal thought tags from reasoning models
+result = re.sub(r'<think>.*?(?:</think>|$)', '', raw_content, flags=re.DOTALL).strip()
+2. PDF to Base64 Image Conversion (PyMuPDF)
+Replaces pdf2image and Poppler binary dependencies with pure PyMuPDF (fitz), rendering first-page previews into base64 JPEG strings for LLM vision analysis:
 
-What are the Skills/Keywords that are missing: Lists missing skills/keywords.
+Python
+import pymupdf as fitz
 
-View Results: After submitting, the results are displayed with a detailed analysis and suggestions.
+pdf_document = fitz.open(stream=uploaded_file.read(), filetype="pdf")
+first_page = pdf_document.load_page(0)
+pix = first_page.get_pixmap()
 
-How It Works
-PDF to Image: The uploaded PDF is converted to an image (only the first page) using the pdf2image library.
+img = Image.frombytes("RGB", [pix.width, pix.height], pix.samples)
+3. Local Heuristic ATS Scoring Engine
+Calculates a 100-point breakdown across key resume metrics instantly without API latency:
 
-Base64 Encoding: The image is encoded into base64 format to be passed into the AI model.
+Python
+def get_enhanced_ats_score(resume_text):
+    # Evaluates Sections, Technical Keywords, Action Verbs,
+    # Metrics/Numbers, Soft Skills, Formatting, and Grammar.
+    ...
+🔮 Future Enhancements
+📄 Multi-page PDF visual analysis support.
 
-Google Gemini AI Model: The system then sends the base64 encoded image along with the job description to the Google Gemini model for processing.
+📑 Support for Word Documents (.docx).
 
-AI Responses: The model provides insights such as strengths, weaknesses, improvement suggestions, missing keywords, and match percentage.
+📥 Export analysis reports as downloadable PDFs.
 
-Code Breakdown
-1. Gemini Model Integration
-The model is initialized with the API key from the .env file and uses the generate_content method to analyze the resume and JD:
+🎯 Role-specific prompt customizers (e.g., SDE, Data Engineering, Product Management).
 
-
-genai.configure(api_key=os.getenv("GOOGLE_API_KEY"))
-
-def get_gemini_response(input, pdf_content, prompt):
-    model = genai.GenerativeModel('gemini-1.5-flash')
-    response = model.generate_content([input, pdf_content[0], prompt])
-    return response.text
-2. PDF Handling
-The PDF is converted to an image using the pdf2image library and the first page is selected for analysis:
-
-
-def input_pdf_setup(uploaded_file):
-    images = pdf2image.convert_from_bytes(uploaded_file.read())
-    first_page = images[0]
-    img_byte_arr = BytesIO()
-    first_page.save(img_byte_arr, format='JPEG')
-    img_byte_arr.seek(0)
-    img_byte_arr = img_byte_arr.getvalue()
-    
-    pdf_parts = [{"mime_type": "image/jpeg", "data": base64.b64encode(img_byte_arr).decode()}]
-    return pdf_parts
-3. Streamlit Interface
-The app is built using Streamlit for an interactive web interface:
-
-
-st.set_page_config(page_title="ATS Resume Expert")
-st.header("ATS Tracking System")
-input_text = st.text_area("Job Description: ", key="input")
-uploaded_file = st.file_uploader("Upload your Resume(PDF)...", type=["pdf"])
-
-if uploaded_file is not None:
-    st.write("File uploaded successfully")
-
-submit1 = st.button("Tell me About the Resume")
-submit2 = st.button("How could I improve my Resume ATS")
-submit3 = st.button("Percentage Match with JD")
-submit4 = st.button("What are the Skills/Keywords that are missing")
-Future Enhancements
-Support for multiple resume pages.
-
-Advanced analysis for resumes in other formats (e.g., DOCX).
-
-More detailed ATS analysis and integration with various ATS tools.
-
-User authentication and storage of analyzed results.
-
-Contributing
-Feel free to submit a pull request with bug fixes, improvements, or additional features. Contributions are welcome!
-
-License
+📜 License
 This project is licensed under the Apache 2.0 License - see the LICENSE file for details.
