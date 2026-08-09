@@ -107,7 +107,7 @@ st.sidebar.info("Built  using Streamlit, Google Gemini Pro, and Python!")
 # =================== Helper Functions ===================
 
 def get_gemini_response(input,pdf_content,prompt):
-    model=genai.GenerativeModel('gemini-1.5-flash')
+    model=genai.GenerativeModel('gemini-2.0-flash')
     response=model.generate_content([input,pdf_content[0],prompt])
     return response.text
 
@@ -250,6 +250,7 @@ input_prompt2 = """
 You are an experienced HR Manager with Tech skills in the field of any one job role of Software Development,Data Science,Full Stack Development, Big Data Engineering, DEVOPS, Data Aanalyst, Cloud Engineer, 
 your task is to review the provided resume against the job description for these profiles.
 Provide me with a detailed analysis of how the candidate can improve their resume to better align with the job description and how should he improve his resume according to Job Description.
+Additionally, please evaluate the resume's formatting. Specifically, check if the experience and education sections are listed in reverse chronological order, and verify that the date formats are strictly consistent throughout the document (e.g., using consistent abbreviations like 'Jun', 'Aug', etc.). Highlight any inconsistencies found.
 """
 
 input_prompt3 = """
