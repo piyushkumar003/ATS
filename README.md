@@ -73,8 +73,7 @@ Enter JD: Paste the job description into the text area.
 
 Analyze: Click any of the 5 action buttons to generate analysis and scores.
 
-🔮 Future Enhancements
-
+#🔮 Future Enhancements
 
 📄 Multi-page PDF visual analysis support.
 
