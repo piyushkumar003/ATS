@@ -107,7 +107,13 @@ st.sidebar.info("Built using Streamlit, Groq AI, and Python!")
 # =================== Helper Functions ===================
 
 def get_gemini_response(input,pdf_content,prompt):
+    from datetime import datetime
+    current_date = datetime.now().strftime("%B %d, %Y")
     messages = [
+        {
+            "role": "system",
+            "content": f"Today's date is {current_date}. The current year is {datetime.now().year}. Keep this in mind when evaluating dates on resumes. Do not flag dates from 2025 or 2026 as being in the future."
+        },
         {
             "role": "user",
             "content": [
@@ -126,7 +132,10 @@ def get_gemini_response(input,pdf_content,prompt):
         model='qwen/qwen3.6-27b',
         messages=messages
     )
-    return response.choices[0].message.content
+    result = response.choices[0].message.content
+    # Strip Qwen's internal <think>...</think> reasoning tags
+    result = re.sub(r'<think>.*?</think>', '', result, flags=re.DOTALL).strip()
+    return result
 
 
 
